@@ -26,26 +26,24 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// --- Player Routes ---
+const router = express.Router();
 
-// Get all players (for admin view)
-app.get('/api/players', (req, res) => {
+// --- Player Routes ---
+router.get('/players', (req, res) => {
     db.all("SELECT * FROM players ORDER BY wins DESC", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// Get top 5 players
-app.get('/api/players/top', (req, res) => {
+router.get('/players/top', (req, res) => {
     db.all("SELECT * FROM players ORDER BY wins DESC LIMIT 5", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// Search for a player
-app.get('/api/players/search/:ign', (req, res) => {
+router.get('/players/search/:ign', (req, res) => {
     const ign = req.params.ign;
     db.get("SELECT * FROM players WHERE ign LIKE ?", [`%${ign}%`], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -54,8 +52,7 @@ app.get('/api/players/search/:ign', (req, res) => {
     });
 });
 
-// Get specific player details
-app.get('/api/players/:ign', (req, res) => {
+router.get('/players/:ign', (req, res) => {
     db.get("SELECT * FROM players WHERE LOWER(ign) = LOWER(?)", [req.params.ign], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ message: 'Player not found' });
@@ -64,9 +61,7 @@ app.get('/api/players/:ign', (req, res) => {
 });
 
 // --- Admin Routes ---
-
-// Admin login
-app.post('/api/admin/login', (req, res) => {
+router.post('/admin/login', (req, res) => {
     const { password } = req.body;
     if (password === ADMIN_PASS) {
         const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '2h' });
@@ -75,8 +70,7 @@ app.post('/api/admin/login', (req, res) => {
     res.status(401).json({ message: 'Invalid password' });
 });
 
-// Add or Update player (Admin only)
-app.post('/api/admin/players', authenticateToken, (req, res) => {
+router.post('/admin/players', authenticateToken, (req, res) => {
     const { ign, tier, wins, kills, beds_broken, rank } = req.body;
 
     const query = `
@@ -97,17 +91,20 @@ app.post('/api/admin/players', authenticateToken, (req, res) => {
     });
 });
 
-// Delete player (Admin only)
-app.delete('/api/admin/players/:ign', authenticateToken, (req, res) => {
+router.delete('/admin/players/:ign', authenticateToken, (req, res) => {
     db.run("DELETE FROM players WHERE ign = ?", [req.params.ign], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Player deleted' });
     });
 });
 
+// Mount the router on both /api and / to be extra safe with proxies
+app.use('/api', router);
+app.use(router);
+
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Server running on http://127.0.0.1:${PORT}`);
     });
 }
 

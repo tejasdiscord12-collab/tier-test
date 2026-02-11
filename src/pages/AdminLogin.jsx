@@ -15,7 +15,12 @@ const AdminLogin = () => {
             localStorage.setItem('admin_token', response.data.token);
             navigate('/admin');
         } catch (err) {
-            setError('Invalid password');
+            console.error('Login error:', err);
+            if (err.response) {
+                setError(err.response.data.message || 'Invalid password');
+            } else {
+                setError('Could not connect to server. Make sure the backend is running.');
+            }
         }
     };
 

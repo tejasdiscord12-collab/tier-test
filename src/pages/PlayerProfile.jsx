@@ -38,9 +38,14 @@ const PlayerProfile = () => {
         fetchPlayer();
     }, [ign]);
 
-    if (loading) return <div className="app-container"><p>Loading profile...</p></div>;
+    if (loading) return <div className="app-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>
+        <div style={{ textAlign: 'center' }}>
+            <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid var(--primary)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+            <p style={{ color: 'var(--text-muted)' }}>Fetching authorized stats...</p>
+        </div>
+    </div>;
 
-    if (error) {
+    if (error || !player) {
         return (
             <div className="app-container animate-fade-in">
                 <button onClick={() => navigate('/')} className="btn" style={{ marginBottom: '2rem' }}>
