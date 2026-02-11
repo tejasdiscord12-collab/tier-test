@@ -1,7 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, 'database.sqlite');
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel
+  ? path.join('/tmp', 'database.sqlite')
+  : path.resolve(__dirname, 'database.sqlite');
+
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
@@ -19,8 +23,8 @@ db.serialize(() => {
 
   // Add a sample player if the table is empty
   db.get("SELECT COUNT(*) as count FROM players", (err, row) => {
-    if (row.count === 0) {
-      db.run("INSERT INTO players (ign, tier, wins, kills, beds_broken, rank) VALUES (?, ?, ?, ?, ?, ?)", 
+    if (row && row.count === 0) {
+      db.run("INSERT INTO players (ign, tier, wins, kills, beds_broken, rank) VALUES (?, ?, ?, ?, ?, ?)",
         ['Tejas', 'God', 1000, 5000, 2000, 'Admin']
       );
     }
