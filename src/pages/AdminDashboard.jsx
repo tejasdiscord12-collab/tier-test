@@ -172,6 +172,10 @@ const AdminDashboard = () => {
                                 <div className="form-group">
                                     <label>Tier</label>
                                     <select className="form-input" value={formData.tier} onChange={(e) => setFormData({ ...formData, tier: e.target.value })}>
+                                        <option>Owner</option>
+                                        <option>Admin</option>
+                                        <option>Moderator</option>
+                                        <option disabled>--- Skill Tiers ---</option>
                                         <option>S</option>
                                         <option>A</option>
                                         <option>B</option>

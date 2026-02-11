@@ -33,6 +33,7 @@ const Home = () => {
     const getTierClass = (tier) => {
         const t = (tier || '').toLowerCase();
         const tierMap = {
+            'owner': 'tier-owner', 'admin': 'tier-admin', 'moderator': 'tier-mod',
             'god': 'tier-god', 's': 'tier-s',
             'legend': 'tier-legend', 'a': 'tier-a',
             'pro': 'tier-pro', 'b': 'tier-b',
